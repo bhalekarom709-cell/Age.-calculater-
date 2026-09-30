@@ -1,0 +1,131 @@
+const daySelect = document.getElementById("day");
+const yearSelect = document.getElementById("year");
+
+const now = new Date();
+const currentYear = now.getFullYear();
+
+// DAY
+for (let day = 1; day <= 31; day++) {
+    const option = document.createElement("option");
+    option.value = day;
+    option.textContent = day;
+    daySelect.appendChild(option);
+}
+
+// YEAR
+for (let year = currentYear; year >= 1900; year--) {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    yearSelect.appendChild(option);
+}
+
+// Default
+daySelect.value = 1;
+yearSelect.value = currentYear;
+
+
+// FAST YEAR CHANGE
+function changeYear(amount) {
+    let year = Number(yearSelect.value);
+
+    year = year - amount;
+
+    if (year > currentYear) {
+        year = currentYear;
+    }
+
+    if (year < 1900) {
+        year = 1900;
+    }
+
+    yearSelect.value = year;
+}
+
+
+// CALCULATE AGE
+function calculateAge() {
+
+    const day = Number(daySelect.value);
+    const month = Number(document.getElementById("month").value);
+    const year = Number(yearSelect.value);
+
+    const birthDate = new Date(year, month - 1, day);
+    const today = new Date();
+
+    if (
+        birthDate.getFullYear() !== year ||
+        birthDate.getMonth() !== month - 1 ||
+        birthDate.getDate() !== day
+    ) {
+        document.getElementById("result").innerHTML =
+            "⚠️ Please select a valid date.";
+        return;
+    }
+
+    if (birthDate > today) {
+        document.getElementById("result").innerHTML =
+            "⚠️ Birth date cannot be in the future.";
+        return;
+    }
+
+    let years = today.getFullYear() - year;
+    let months = today.getMonth() - (month - 1);
+    let days = today.getDate() - day;
+
+    if (days < 0) {
+        months--;
+
+        const previousMonthDays = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            0
+        ).getDate();
+
+        days += previousMonthDays;
+    }
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    // NEXT BIRTHDAY
+    let nextBirthday = new Date(
+        today.getFullYear(),
+        month - 1,
+        day
+    );
+
+    if (nextBirthday < today) {
+        nextBirthday = new Date(
+            today.getFullYear() + 1,
+            month - 1,
+            day
+        );
+    }
+
+    const daysRemaining = Math.ceil(
+        (nextBirthday - today) / (1000 * 60 * 60 * 24)
+    );
+
+    const birthdayDate = nextBirthday.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }
+    );
+
+    document.getElementById("result").innerHTML =
+        "🎉 Your Age is:<br><br>" +
+        years + " Years, " +
+        months + " Months, " +
+        days + " Days" +
+        "<hr>" +
+        "🎂 Next Birthday:<br>" +
+        birthdayDate +
+        "<br><br>" +
+        "⏳ " + daysRemaining + " Days Remaining";
+}
